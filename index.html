@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <style>
+      body {
+    /* fallback for old browsers */
+    background: #6a11cb;
+    
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+    
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+    height: 100vh;
+    }
+    .mask-custom {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 2em;
+          backdrop-filter: blur(15px);
+          border: 2px solid rgba(255, 255, 255, 0.05);
+          background-clip: padding-box;
+          box-shadow: 10px 10px 10px rgba(246, 246, 246, 0.03);
+        }
+    #chat{
+      display: none;
+      
+    }
+
+    #chatArea{
+      height: 60vh;
+      overflow-y: auto;
+    }
+
+    #messageArea{
+      display: none;
+    }
+
+    .sender{
+      background: rgba(255, 228, 196, 0.3);
+          border-radius: 2em;
+          backdrop-filter: blur(15px);
+          border: 2px solid rgba(255, 255, 255, 0.05);
+          background-clip: padding-box;
+          box-shadow: 10px 10px 10px rgba(255, 228, 196, 0.489);    }
+  </style>
+  <title>Home</title>
+</head>
+<body class="d-flex justify-content-center flex-column">
+  <section class="vh-100 gradient-custom " id="login">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+          <div class="card bg-dark text-white" style="border-radius: 1rem;">
+            <div class="card-body p-5 text-center">
+  
+              <div class="mb-md-5 mt-md-4 ">
+  
+                <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                <p class="text-white-50 mb-5">Please enter your name</p>
+  
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="myname" placeholder="Username">
+                  <label for="floatingInput" style="color: gray;">Username</label>
+                </div>
+                <button class="btn btn-outline-light btn-lg px-5 " id="login-btn" type="submit">Login</button>
+  
+  
+              </div>
+  
+  
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- <div class="container d-flex justify-content-center align-items-center px-4 py-5 gradient-custom w-100 flex-column" style="border-radius: 25px;" id="chatArea">
+    <div class="col-12 mask-custom" id="chat">
+
+    </div>
+
+  </div> -->
+  
+  <section class="px-4 py-2 gradient-custom w-100" style="border-radius: 25px;" id="chat">
+    <div class="row d-flex justify-content-center align-items-center">
+
+      <div>
+        <h1 class="text-center text-light mb-3">Real-Time Chat Application</h1>
+      </div>
+      <div class="col-md-6 col-lg-7 col-xl-7 bg-dark opacity-20" id="container" style="border-radius: 25px; --bs-bg-opacity: .998;">
+
+        <ul class="list-unstyled text-white p-5 " id="chatArea">
+          <li class="d-flex justify-content-between " id="messageArea">
+            <div class="card mask-custom w-100" id="msg-container">
+              <div class="card-header d-flex justify-content-between p-3" style="border-bottom: 1px solid rgba(255,255,255,.3);">
+                <p class="fw-bold mb-0 text-light" id="userName"></p>
+                <p class="text-light small mb-0 ms-5" id="time"></p>
+              </div>
+              <div class="card-body">
+                <p class="mb-0 fs-4 text-light" id="sent-msg">
+                </p>
+              </div>
+            </div>
+          </li>
+
+        </ul>
+        <div class="col-12 d-flex align-items-center justify-content-center">
+          <div class="form-floating col-10">
+            <input type="text" class="form-control" id="message" placeholder="Message" />
+            <label for="message">Message</label>
+          </div>
+    
+          <button type="submit" class="btn btn-success btn-lg btn-rounded float-end m-3" id="send-btn">Send</button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+      let socket = io();
+      let form = document.getElementById("form");
+      let myname = document.getElementById("myname");
+      let message = document.getElementById("message");
+      let messageArea = document.getElementById("messageArea");
+      let chatArea = document.getElementById("chatArea");
+      let sendBtn = document.getElementById("send-btn");
+      let loginPage = document.getElementById("login");
+      let chatPage = document.getElementById("chat");
+      let loginBtn= document.getElementById("login-btn");
+      let userName = document.getElementById("userName")
+      let chat = document.getElementById("container")
+      let msgContainer = document.getElementById("msg-container")
+      let currDate = new Date();
+
+      let hoursMin = currDate.getHours() + ':' + currDate.getMinutes();
+      console.log(message);
+
+      loginBtn.addEventListener("click", (e) => {
+          if (myname.value) {
+              //send message the client write it to the othe one
+              socket.emit("send name", myname.value);
+              loginPage.style.display="none";
+              chatPage.style.display="block";
+              // chatArea.style.display="none";
+              message.focus();
+          }
+      });
+        //on recieving message from the other client show it
+        //on receiving the name of the client styling the name of the client
+
+      sendBtn.addEventListener("click", (e)=>{
+        if(message.value){
+          socket.emit("send message", {name: myname.value, chat: message.value});
+          message.value = "";
+          console.log("pressed");
+        }
+      })
+
+      // socket.on("send name", (username)=>{
+      //   userName.textContent = username;
+      // })
+
+      // on reveving the message style it and show it
+       socket.on("send message", (data) => {
+      //get the elements we want to write in it
+          let chatContent = messageArea.cloneNode(true);
+          let name = chatContent.children[0].children[0].children[0];
+          let date = chatContent.children[0].children[0].children[1];
+          let msg = chatContent.children[0].children[1].children[0];
+          let senderName = messageArea.children[0].children[0].children[0]
+          name.textContent = data.name;
+          msg.textContent = data.chat;
+          date.textContent = hoursMin;
+
+          
+          // msg.style.textAlign="center"
+          chatArea.appendChild(chatContent);
+          message.focus();
+          chatArea.scrollTop=chatArea.scrollHeight;
+        });
+        let firstMsg = document.getElementsByClassName("clone");
+
+        messageArea.classList.add("clone");
+                  firstMsg[0].parentNode.removeChild(firstMsg[0]);
+
+
+  </script>
+</body>
+</html>
